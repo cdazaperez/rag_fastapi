@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Productos{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h2>Productos</h2>
+  <div>
+    <a href="{{ url_for('agregar_producto') }}" class="btn btn-primary">Agregar</a>
+  </div>
+</div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Colegio</th>
+      <th>Género</th>
+      <th>Talla</th>
+      <th>Cantidad</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in productos %}
+    <tr>
+      <td>{{ p.id }}</td>
+      <td>{{ p.nombre }}</td>
+      <td>{{ p.colegio }}</td>
+      <td>{{ p.genero }}</td>
+      <td>{{ p.talla }}</td>
+      <td>{{ p.cantidad }}</td>
+      <td>
+        <a href="{{ url_for('editar', id=p.id) }}" class="btn btn-sm btn-primary">Editar</a>
+        {% if session.get('role') == 'admin' %}
+        <form action="{{ url_for('eliminar_producto', id=p.id) }}" method="post" class="d-inline">
+          <button class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">Eliminar</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

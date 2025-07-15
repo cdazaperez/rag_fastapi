@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Editar{% endblock %}
+{% block content %}
+<h2 class="mb-3">Editar Producto</h2>
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label">Nombre</label>
+    <input type="text" class="form-control" name="nombre" value="{{ producto.nombre }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Colegio</label>
+    <input type="text" class="form-control" name="colegio" value="{{ producto.colegio }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Género</label>
+    <input type="text" class="form-control" name="genero" value="{{ producto.genero }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Talla</label>
+    <input type="text" class="form-control" name="talla" value="{{ producto.talla }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Cantidad</label>
+    <input type="number" class="form-control" name="cantidad" value="{{ producto.cantidad }}" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Guardar</button>
+  <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

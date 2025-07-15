@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Ventas{% endblock %}
+{% block content %}
+<h2 class="mb-3">Historial de Ventas</h2>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Producto</th>
+      <th>Usuario</th>
+      <th>Cantidad</th>
+      <th>Fecha</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for v in ventas %}
+    <tr>
+      <td>{{ v.id }}</td>
+      <td>{{ v.nombre }}</td>
+      <td>{{ v.usuario }}</td>
+      <td>{{ v.cantidad }}</td>
+      <td>{{ v.fecha }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

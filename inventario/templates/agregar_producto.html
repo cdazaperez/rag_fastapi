@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Agregar Producto{% endblock %}
+{% block content %}
+<h2 class="mb-3">Agregar Producto</h2>
+<form method="post">
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Nombre</label>
+      <input type="text" class="form-control" name="nombre" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Colegio</label>
+      <input type="text" class="form-control" name="colegio" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Género</label>
+      <input type="text" class="form-control" name="genero" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Talla</label>
+      <input type="text" class="form-control" name="talla" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Cantidad</label>
+      <input type="number" class="form-control" name="cantidad" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Precio</label>
+      <input type="number" step="0.01" class="form-control" name="precio" required>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Guardar</button>
+  <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
