@@ -16,6 +16,7 @@
       <th>Género</th>
       <th>Talla</th>
       <th>Cantidad</th>
+      <th>Precio</th>
       <th>Acciones</th>
     </tr>
   </thead>
@@ -28,6 +29,7 @@
       <td>{{ p.genero }}</td>
       <td>{{ p.talla }}</td>
       <td>{{ p.cantidad }}</td>
+      <td>{{ '%.2f'|format(p.precio) }}</td>
       <td>
         <a href="{{ url_for('editar', id=p.id) }}" class="btn btn-sm btn-primary">Editar</a>
         {% if session.get('role') == 'admin' %}

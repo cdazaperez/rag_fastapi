@@ -6,13 +6,19 @@
 <form method="post" id="venta-form">
   <div class="row">
     <div class="col-md-6 mb-3">
-      <label class="form-label">Producto</label>
-      <select id="producto" class="form-select">
-        {% for p in productos %}
-        <option value="{{ p.id }}" data-precio="{{ p.precio }}" data-colegio="{{ p.colegio }}">{{ p.nombre }} ({{ p.cantidad }})</option>
+      <label class="form-label">Colegio</label>
+      <select id="colegio" class="form-select">
+        {% for c in colegios %}
+        <option value="{{ c }}">{{ c }}</option>
         {% endfor %}
       </select>
     </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">Producto</label>
+      <select id="producto" class="form-select"></select>
+    </div>
+  </div>
+  <div class="row">
     <div class="col-md-4 mb-3">
       <label class="form-label">Cantidad</label>
       <input type="number" id="cantidad" class="form-control">
@@ -44,7 +50,29 @@
 
 <script>
 const productos = {{ productos | tojson }};
+const colegios = {{ colegios | tojson }};
 let items = [];
+
+function cargarProductos(colegio) {
+  const select = document.getElementById('producto');
+  select.innerHTML = '';
+  productos.filter(p => p.colegio === colegio).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.nombre} (${p.cantidad})`;
+    select.appendChild(opt);
+  });
+}
+
+document.getElementById('colegio').addEventListener('change', (e) => {
+  cargarProductos(e.target.value);
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (colegios.length) {
+    cargarProductos(colegios[0]);
+  }
+});
 
 function actualizarTotal() {
   let total = 0;
