@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Colegios{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h2>Colegios</h2>
+</div>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Dirección</th>
+      <th>Teléfono</th>
+      <th>Contacto</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in colegios %}
+    <tr>
+      <td>{{ c.id }}</td>
+      <td>{{ c.nombre }}</td>
+      <td>{{ c.direccion }}</td>
+      <td>{{ c.telefono }}</td>
+      <td>{{ c.contacto }}</td>
+      <td>
+        <a href="{{ url_for('editar_colegio', id=c.id) }}" class="btn btn-sm btn-primary">Editar</a>
+        <form action="{{ url_for('eliminar_colegio', id=c.id) }}" method="post" class="d-inline">
+          <button class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h3>Crear nuevo colegio</h3>
+<form method="post" action="{{ url_for('crear_colegio') }}">
+  <div class="row">
+    <div class="col-md-3 mb-3">
+      <input type="text" name="nombre" class="form-control" placeholder="Nombre" required>
+    </div>
+    <div class="col-md-3 mb-3">
+      <input type="text" name="direccion" class="form-control" placeholder="Dirección" required>
+    </div>
+    <div class="col-md-3 mb-3">
+      <input type="text" name="telefono" class="form-control" placeholder="Teléfono" required>
+    </div>
+    <div class="col-md-2 mb-3">
+      <input type="text" name="contacto" class="form-control" placeholder="Contacto" required>
+    </div>
+    <div class="col-md-1 mb-3">
+      <button type="submit" class="btn btn-primary">Crear</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
