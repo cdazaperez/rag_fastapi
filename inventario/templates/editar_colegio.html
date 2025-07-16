@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Editar Colegio{% endblock %}
+{% block content %}
+<h2 class="mb-3">Editar Colegio</h2>
+<form method="post">
+  <div class="mb-3">
+    <label class="form-label">Nombre</label>
+    <input type="text" class="form-control" name="nombre" value="{{ colegio.nombre }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Dirección</label>
+    <input type="text" class="form-control" name="direccion" value="{{ colegio.direccion }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Teléfono</label>
+    <input type="text" class="form-control" name="telefono" value="{{ colegio.telefono }}" required>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Contacto</label>
+    <input type="text" class="form-control" name="contacto" value="{{ colegio.contacto }}" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Guardar</button>
+  <a href="{{ url_for('listar_colegios') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}

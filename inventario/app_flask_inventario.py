@@ -299,5 +299,146 @@ def nueva_venta():
     conn.close()
     return render_template("nueva_venta.html", productos=productos, colegios=colegios)
 
+# --- CRUD Colegios ---
+
+@app.route('/colegios')
+def listar_colegios():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM colegios")
+    colegios = cursor.fetchall()
+    conn.close()
+    return render_template('colegios.html', colegios=colegios)
+
+
+@app.route('/colegios/crear', methods=['POST'])
+def crear_colegio():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    nombre = request.form['nombre']
+    direccion = request.form['direccion']
+    telefono = request.form['telefono']
+    contacto = request.form['contacto']
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO colegios(nombre, direccion, telefono, contacto) VALUES (%s, %s, %s, %s)",
+        (nombre, direccion, telefono, contacto))
+    conn.commit()
+    conn.close()
+    flash('Colegio creado correctamente')
+    return redirect(url_for('listar_colegios'))
+
+
+@app.route('/colegios/editar/<int:id>', methods=['GET', 'POST'])
+def editar_colegio(id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        direccion = request.form['direccion']
+        telefono = request.form['telefono']
+        contacto = request.form['contacto']
+        cursor.execute(
+            "UPDATE colegios SET nombre=%s, direccion=%s, telefono=%s, contacto=%s WHERE id=%s",
+            (nombre, direccion, telefono, contacto, id))
+        conn.commit()
+        conn.close()
+        flash('Colegio actualizado')
+        return redirect(url_for('listar_colegios'))
+    cursor.execute("SELECT * FROM colegios WHERE id=%s", (id,))
+    colegio = cursor.fetchone()
+    conn.close()
+    return render_template('editar_colegio.html', colegio=colegio)
+
+
+@app.route('/colegios/borrar/<int:id>', methods=['POST'])
+def eliminar_colegio(id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM colegios WHERE id=%s", (id,))
+    conn.commit()
+    conn.close()
+    flash('Colegio eliminado')
+    return redirect(url_for('listar_colegios'))
+
+
+# --- CRUD Clientes ---
+
+@app.route('/clientes')
+def listar_clientes():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM clientes")
+    clientes = cursor.fetchall()
+    conn.close()
+    return render_template('clientes.html', clientes=clientes)
+
+
+@app.route('/clientes/crear', methods=['POST'])
+def crear_cliente():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    nombre = request.form['nombre']
+    apellido = request.form['apellido']
+    cedula = request.form['cedula']
+    telefono = request.form.get('telefono')
+    email = request.form.get('email')
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO clientes(nombre, apellido, cedula, telefono, email) VALUES (%s, %s, %s, %s, %s)",
+        (nombre, apellido, cedula, telefono, email))
+    conn.commit()
+    conn.close()
+    flash('Cliente creado correctamente')
+    return redirect(url_for('listar_clientes'))
+
+
+@app.route('/clientes/editar/<int:id>', methods=['GET', 'POST'])
+def editar_cliente(id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        apellido = request.form['apellido']
+        cedula = request.form['cedula']
+        telefono = request.form.get('telefono')
+        email = request.form.get('email')
+        cursor.execute(
+            """UPDATE clientes SET nombre=%s, apellido=%s, cedula=%s, telefono=%s, email=%s WHERE id=%s""",
+            (nombre, apellido, cedula, telefono, email, id))
+        conn.commit()
+        conn.close()
+        flash('Cliente actualizado')
+        return redirect(url_for('listar_clientes'))
+    cursor.execute("SELECT * FROM clientes WHERE id=%s", (id,))
+    cliente = cursor.fetchone()
+    conn.close()
+    return render_template('editar_cliente.html', cliente=cliente)
+
+
+@app.route('/clientes/borrar/<int:id>', methods=['POST'])
+def eliminar_cliente(id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM clientes WHERE id=%s", (id,))
+    conn.commit()
+    conn.close()
+    flash('Cliente eliminado')
+    return redirect(url_for('listar_clientes'))
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
