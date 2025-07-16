@@ -24,6 +24,13 @@
     {% endfor %}
   </tbody>
 </table>
+<h4>Subtotal: ${{ '%.2f'|format(total) }}</h4>
+{% if aplicar_iva %}
+<h4>IVA (19%): ${{ '%.2f'|format(iva) }}</h4>
+<h4>Total: ${{ '%.2f'|format(total_final) }}</h4>
+{% else %}
 <h4>Total: ${{ '%.2f'|format(total) }}</h4>
+{% endif %}
+<a href="{{ url_for('recibo_pdf') }}" class="btn btn-secondary mt-3">Descargar PDF</a>
 <a href="{{ url_for('dashboard') }}" class="btn btn-primary mt-3">Aceptar</a>
 {% endblock %}

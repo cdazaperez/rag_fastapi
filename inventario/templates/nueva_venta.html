@@ -40,8 +40,13 @@
     </thead>
     <tbody id="lista-venta"></tbody>
   </table>
-
-  <h4 class="mt-3">Total: $<span id="total">0.00</span></h4>
+  <h4 class="mt-3">Subtotal: $<span id="total">0.00</span></h4>
+  <div class="form-check mt-2">
+    <input class="form-check-input" type="checkbox" id="aplicar_iva" name="aplicar_iva">
+    <label class="form-check-label" for="aplicar_iva">Incluir IVA 19%</label>
+  </div>
+  <h4 class="mt-3">IVA: $<span id="iva">0.00</span></h4>
+  <h4>Total con IVA: $<span id="total-final">0.00</span></h4>
 
   <input type="hidden" name="items" id="items">
   <button type="submit" class="btn btn-primary mt-3">Registrar</button>
@@ -78,7 +83,12 @@ function actualizarTotal() {
     const prod = productos.find(p => p.id == i.id);
     total += prod.precio * i.cantidad;
   });
+  const aplicarIVA = document.getElementById('aplicar_iva').checked;
+  const iva = aplicarIVA ? total * 0.19 : 0;
+  const totalFinal = total + iva;
   document.getElementById('total').innerText = total.toFixed(2);
+  document.getElementById('iva').innerText = iva.toFixed(2);
+  document.getElementById('total-final').innerText = totalFinal.toFixed(2);
   document.getElementById('items').value = JSON.stringify(items);
 }
 
@@ -103,5 +113,6 @@ document.getElementById('add-btn').addEventListener('click', function(e) {
 document.getElementById('venta-form').addEventListener('submit', function() {
   actualizarTotal();
 });
+document.getElementById('aplicar_iva').addEventListener('change', actualizarTotal);
 </script>
 {% endblock %}
