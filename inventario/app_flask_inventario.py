@@ -65,6 +65,9 @@ def editar(id):
         return redirect(url_for('login'))
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id, nombre FROM colegios")
+    colegios = cursor.fetchall()
+
     if request.method == 'POST':
         data = (
             request.form['referencia'],
@@ -87,7 +90,7 @@ def editar(id):
     cursor.execute("SELECT * FROM productos WHERE id=%s", (id,))
     producto = cursor.fetchone()
     conn.close()
-    return render_template('editar.html', producto=producto)
+    return render_template('editar.html', producto=producto, colegios=colegios)
 
 @app.route('/venta/<int:id>', methods=['POST'])
 def venta(id):
@@ -125,19 +128,30 @@ def gestionar_usuarios():
 def crear_usuario():
     if session.get('role') != 'admin':
         return redirect(url_for('dashboard'))
+
     username = request.form['username']
     password = request.form['password']
     email = request.form.get('email')
-    role = request.form['role']
+    role = request.form['role'].strip().lower()
+
+    if role not in ("admin", "user"):
+        flash("Rol inválido", "error")
+        return redirect(url_for('gestionar_usuarios'))
+
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO usuarios(username, password, email, role) VALUES (%s, %s, %s, %s)",
-        (username, password, email, role),
-    )
-    conn.commit()
-    conn.close()
-    flash("Usuario creado")
+    try:
+        cursor.execute(
+            "INSERT INTO usuarios(username, password, email, role) VALUES (%s, %s, %s, %s)",
+            (username, password, email, role),
+        )
+        conn.commit()
+        flash("Usuario creado")
+    except mysql.connector.Error as e:
+        flash(f"Error al crear usuario: {e}", "error")
+    finally:
+        conn.close()
+
     return redirect(url_for('gestionar_usuarios'))
 
 @app.route('/usuarios/borrar/<int:id>', methods=['POST'])

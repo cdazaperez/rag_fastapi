@@ -11,6 +11,7 @@
   <thead>
     <tr>
       <th>ID</th>
+      <th>Referencia</th>
       <th>Nombre</th>
       <th>Colegio</th>
       <th>Género</th>
@@ -24,6 +25,7 @@
     {% for p in productos %}
     <tr>
       <td>{{ p.id }}</td>
+      <td>{{ p.referencia }}</td>
       <td>{{ p.nombre }}</td>
       <td>{{ p.colegio }}</td>
       <td>{{ p.genero }}</td>
