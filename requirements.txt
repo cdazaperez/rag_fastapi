@@ -7,3 +7,4 @@ python-multipart
 
 flask
 mysql-connector-python
+xhtml2pdf

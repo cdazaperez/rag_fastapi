@@ -1,10 +1,12 @@
 # app_flask_inventario.py
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, make_response
 from werkzeug.utils import secure_filename
 import mysql.connector
 import os
 from datetime import datetime
 import json
+from io import BytesIO
+from xhtml2pdf import pisa
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_segura'
@@ -296,6 +298,7 @@ def nueva_venta():
 
     if request.method == 'POST':
         items = json.loads(request.form['items']) if request.form.get('items') else []
+        aplicar_iva = request.form.get('aplicar_iva') == 'on'
         ventas_detalle = []
         total = 0
         for item in items:
@@ -327,12 +330,50 @@ def nueva_venta():
                 "INSERT INTO ventas(producto_id, usuario, cantidad, fecha) VALUES (%s, %s, %s, %s)",
                 (producto_id, session['user'], cantidad, datetime.now()))
 
+        iva = total * 0.19 if aplicar_iva else 0
+        total_final = total + iva
+
+        session['last_sale'] = {
+            'ventas': ventas_detalle,
+            'total': total,
+            'aplicar_iva': aplicar_iva,
+            'iva': iva,
+            'total_final': total_final
+        }
+
         conn.commit()
         conn.close()
-        return render_template("recibo_venta.html", ventas=ventas_detalle, total=total)
+        return render_template(
+            "recibo_venta.html",
+            ventas=ventas_detalle,
+            total=total,
+            aplicar_iva=aplicar_iva,
+            iva=iva,
+            total_final=total_final
+        )
 
     conn.close()
     return render_template("nueva_venta.html", productos=productos, colegios=colegios)
+
+
+@app.route('/recibo/pdf')
+def recibo_pdf():
+    if 'last_sale' not in session:
+        flash('No hay recibo disponible', 'error')
+        return redirect(url_for('dashboard'))
+
+    data = session['last_sale']
+    html = render_template('recibo_venta_pdf.html', **data)
+    pdf_stream = BytesIO()
+    pisa_status = pisa.CreatePDF(html, dest=pdf_stream)
+    if pisa_status.err:
+        flash('Error al generar PDF', 'error')
+        return redirect(url_for('dashboard'))
+    pdf_stream.seek(0)
+    response = make_response(pdf_stream.read())
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=recibo.pdf'
+    return response
 
 # --- CRUD Colegios ---
 
