@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<style>
+body { font-family: Arial, sans-serif; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid #000; padding: 4px; }
+th { background: #eee; }
+</style>
+</head>
+<body>
+<h2>Recibo de Venta</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Prenda</th>
+      <th>Colegio</th>
+      <th>Cantidad</th>
+      <th>Precio</th>
+      <th>Subtotal</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for v in ventas %}
+    <tr>
+      <td>{{ v.nombre }}</td>
+      <td>{{ v.colegio }}</td>
+      <td>{{ v.cantidad }}</td>
+      <td>{{ '%.2f'|format(v.precio) }}</td>
+      <td>{{ '%.2f'|format(v.subtotal) }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p>Subtotal: ${{ '%.2f'|format(total) }}</p>
+{% if aplicar_iva %}
+<p>IVA (19%): ${{ '%.2f'|format(iva) }}</p>
+<p><strong>Total: ${{ '%.2f'|format(total_final) }}</strong></p>
+{% else %}
+<p><strong>Total: ${{ '%.2f'|format(total) }}</strong></p>
+{% endif %}
+</body>
+</html>
