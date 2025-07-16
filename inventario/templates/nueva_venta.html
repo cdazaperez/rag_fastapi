@@ -8,7 +8,7 @@
       <label class="form-label">Producto</label>
       <select name="producto_id" class="form-select" required>
         {% for p in productos %}
-        <option value="{{ p.id }}">{{ p.nombre }} ({{ p.cantidad }})</option>
+        <option value="{{ p.id }}">{{ p.nombre }} ({{ p.cantidad }}) - {{ "${:,.0f} COP".format(p.precio) }}</option>
         {% endfor %}
       </select>
     </div>
