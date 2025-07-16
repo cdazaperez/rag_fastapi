@@ -32,6 +32,12 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('reporte_ventas') }}">Reportes</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('listar_colegios') }}">Colegios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('listar_clientes') }}">Clientes</a>
+        </li>
         {% if session.get('role') == 'admin' %}
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('gestionar_usuarios') }}">Usuarios</a>

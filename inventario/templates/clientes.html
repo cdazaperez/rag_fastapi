@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Clientes{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h2>Clientes</h2>
+</div>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Apellido</th>
+      <th>Cédula</th>
+      <th>Teléfono</th>
+      <th>Email</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in clientes %}
+    <tr>
+      <td>{{ c.id }}</td>
+      <td>{{ c.nombre }}</td>
+      <td>{{ c.apellido }}</td>
+      <td>{{ c.cedula }}</td>
+      <td>{{ c.telefono }}</td>
+      <td>{{ c.email }}</td>
+      <td>
+        <a href="{{ url_for('editar_cliente', id=c.id) }}" class="btn btn-sm btn-primary">Editar</a>
+        <form action="{{ url_for('eliminar_cliente', id=c.id) }}" method="post" class="d-inline">
+          <button class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar?')">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h3>Crear nuevo cliente</h3>
+<form method="post" action="{{ url_for('crear_cliente') }}">
+  <div class="row">
+    <div class="col-md-2 mb-3">
+      <input type="text" name="nombre" class="form-control" placeholder="Nombre" required>
+    </div>
+    <div class="col-md-2 mb-3">
+      <input type="text" name="apellido" class="form-control" placeholder="Apellido" required>
+    </div>
+    <div class="col-md-2 mb-3">
+      <input type="text" name="cedula" class="form-control" placeholder="Cédula" required>
+    </div>
+    <div class="col-md-2 mb-3">
+      <input type="text" name="telefono" class="form-control" placeholder="Teléfono">
+    </div>
+    <div class="col-md-3 mb-3">
+      <input type="email" name="email" class="form-control" placeholder="Email">
+    </div>
+    <div class="col-md-1 mb-3">
+      <button type="submit" class="btn btn-primary">Crear</button>
+    </div>
+  </div>
+</form>
+{% endblock %}
