@@ -274,7 +274,9 @@ def nueva_venta():
         for item in items:
             producto_id = int(item['id'])
             cantidad = int(item['cantidad'])
-            cursor.execute("SELECT nombre, colegio, cantidad, precio FROM productos WHERE id=%s", (producto_id,))
+            cursor.execute(
+                "SELECT nombre, colegio, cantidad, precio FROM productos WHERE id=%s",
+                (producto_id,))
             prod = cursor.fetchone()
             if not prod or prod['cantidad'] < cantidad:
                 flash("Stock insuficiente o producto no encontrado", "error")
@@ -291,8 +293,14 @@ def nueva_venta():
             })
             total += subtotal
 
-            cursor.execute("UPDATE productos SET cantidad = cantidad - %s WHERE id = %s", (cantidad, producto_id))
+            cursor.execute(
+                "UPDATE productos SET cantidad = cantidad - %s WHERE id = %s",
+                (cantidad, producto_id))
+            cursor.execute(
+                "INSERT INTO ventas(producto_id, usuario, cantidad, fecha) VALUES (%s, %s, %s, %s)",
+                (producto_id, session['user'], cantidad, datetime.now()))
 
+        conn.commit()
         conn.close()
         return render_template("recibo_venta.html", ventas=ventas_detalle, total=total)
 
