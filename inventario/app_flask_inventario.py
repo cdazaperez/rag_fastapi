@@ -72,9 +72,13 @@ def editar(id):
             request.form['genero'],
             request.form['talla'],
             int(request.form['cantidad']),
+            float(request.form['precio']),
             id
         )
-        cursor.execute("UPDATE productos SET nombre=%s, colegio=%s, genero=%s, talla=%s, cantidad=%s WHERE id=%s", data)
+        cursor.execute(
+            "UPDATE productos SET nombre=%s, colegio=%s, genero=%s, talla=%s, cantidad=%s, precio=%s WHERE id=%s",
+            data,
+        )
         conn.commit()
         conn.close()
         flash("Producto actualizado")
@@ -149,6 +153,7 @@ def eliminar_producto(id):
         return redirect(url_for('dashboard'))
     conn = get_db()
     cursor = conn.cursor()
+    cursor.execute("DELETE FROM ventas WHERE producto_id=%s", (id,))
     cursor.execute("DELETE FROM productos WHERE id=%s", (id,))
     conn.commit()
     conn.close()
@@ -206,6 +211,8 @@ def nueva_venta():
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM productos")
     productos = cursor.fetchall()
+    cursor.execute("SELECT DISTINCT colegio FROM productos")
+    colegios = [row['colegio'] for row in cursor.fetchall()]
 
     if request.method == 'POST':
         items = json.loads(request.form['items']) if request.form.get('items') else []
@@ -242,7 +249,7 @@ def nueva_venta():
         return render_template("recibo_venta.html", ventas=ventas_detalle, total=total)
 
     conn.close()
-    return render_template("nueva_venta.html", productos=productos)
+    return render_template("nueva_venta.html", productos=productos, colegios=colegios)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
