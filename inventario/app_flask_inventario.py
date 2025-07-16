@@ -176,6 +176,37 @@ def ver_ventas():
     conn.close()
     return render_template('ventas.html', ventas=ventas)
 
+@app.route('/reportes')
+def reporte_ventas():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT DATE(fecha) AS dia, SUM(v.cantidad * p.precio) AS total
+        FROM ventas v
+        JOIN productos p ON v.producto_id = p.id
+        GROUP BY dia ORDER BY dia DESC
+    """)
+    diarios = cursor.fetchall()
+    cursor.execute("""
+        SELECT YEAR(fecha) AS year, WEEK(fecha) AS semana, SUM(v.cantidad * p.precio) AS total
+        FROM ventas v
+        JOIN productos p ON v.producto_id = p.id
+        GROUP BY year, semana ORDER BY year DESC, semana DESC
+    """)
+    semanal = cursor.fetchall()
+    cursor.execute("""
+        SELECT DATE_FORMAT(fecha, '%Y-%m') AS mes, SUM(v.cantidad * p.precio) AS total
+        FROM ventas v
+        JOIN productos p ON v.producto_id = p.id
+        GROUP BY mes ORDER BY mes DESC
+    """)
+    mensual = cursor.fetchall()
+    conn.close()
+    return render_template('reportes.html', diarios=diarios, semanal=semanal, mensual=mensual)
+
 @app.route('/agregar', methods=['GET', 'POST'])
 def agregar_producto():
     if 'user' not in session:
@@ -201,6 +232,28 @@ def agregar_producto():
         return redirect(url_for('dashboard'))
 
     return render_template("agregar_producto.html")
+
+@app.route('/entrada', methods=['GET', 'POST'])
+def entrada_producto():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM productos")
+    productos = cursor.fetchall()
+
+    if request.method == 'POST':
+        producto_id = int(request.form['producto_id'])
+        cantidad = int(request.form['cantidad'])
+        cursor.execute("UPDATE productos SET cantidad = cantidad + %s WHERE id = %s", (cantidad, producto_id))
+        conn.commit()
+        conn.close()
+        flash("Entrada registrada")
+        return redirect(url_for('dashboard'))
+
+    conn.close()
+    return render_template("entrada_producto.html", productos=productos)
 
 @app.route('/venta', methods=['GET', 'POST'])
 def nueva_venta():
@@ -239,12 +292,7 @@ def nueva_venta():
             total += subtotal
 
             cursor.execute("UPDATE productos SET cantidad = cantidad - %s WHERE id = %s", (cantidad, producto_id))
-            cursor.execute(
-                "INSERT INTO ventas (producto_id, usuario, cantidad, fecha) VALUES (%s, %s, %s, NOW())",
-                (producto_id, session['user'], cantidad)
-            )
 
-        conn.commit()
         conn.close()
         return render_template("recibo_venta.html", ventas=ventas_detalle, total=total)
 
