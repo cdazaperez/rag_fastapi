@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import mysql.connector
 import os
 from datetime import datetime
+import json
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_segura'
@@ -71,9 +72,13 @@ def editar(id):
             request.form['genero'],
             request.form['talla'],
             int(request.form['cantidad']),
+            float(request.form['precio']),
             id
         )
-        cursor.execute("UPDATE productos SET nombre=%s, colegio=%s, genero=%s, talla=%s, cantidad=%s WHERE id=%s", data)
+        cursor.execute(
+            "UPDATE productos SET nombre=%s, colegio=%s, genero=%s, talla=%s, cantidad=%s, precio=%s WHERE id=%s",
+            data,
+        )
         conn.commit()
         conn.close()
         flash("Producto actualizado")
@@ -148,6 +153,7 @@ def eliminar_producto(id):
         return redirect(url_for('dashboard'))
     conn = get_db()
     cursor = conn.cursor()
+    cursor.execute("DELETE FROM ventas WHERE producto_id=%s", (id,))
     cursor.execute("DELETE FROM productos WHERE id=%s", (id,))
     conn.commit()
     conn.close()
@@ -258,37 +264,40 @@ def nueva_venta():
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM productos")
     productos = cursor.fetchall()
+    cursor.execute("SELECT DISTINCT colegio FROM productos")
+    colegios = [row['colegio'] for row in cursor.fetchall()]
 
     if request.method == 'POST':
-        producto_id = int(request.form['producto_id'])
-        cantidad = int(request.form['cantidad'])
-        cursor.execute("SELECT cantidad, precio FROM productos WHERE id=%s", (producto_id,))
-        resultado = cursor.fetchone()
+        items = json.loads(request.form['items']) if request.form.get('items') else []
+        ventas_detalle = []
+        total = 0
+        for item in items:
+            producto_id = int(item['id'])
+            cantidad = int(item['cantidad'])
+            cursor.execute("SELECT nombre, colegio, cantidad, precio FROM productos WHERE id=%s", (producto_id,))
+            prod = cursor.fetchone()
+            if not prod or prod['cantidad'] < cantidad:
+                flash("Stock insuficiente o producto no encontrado", "error")
+                conn.close()
+                return redirect(url_for('nueva_venta'))
 
-        if resultado and resultado['cantidad'] >= cantidad:
+            subtotal = prod['precio'] * cantidad
+            ventas_detalle.append({
+                'nombre': prod['nombre'],
+                'colegio': prod['colegio'],
+                'cantidad': cantidad,
+                'precio': prod['precio'],
+                'subtotal': subtotal
+            })
+            total += subtotal
+
             cursor.execute("UPDATE productos SET cantidad = cantidad - %s WHERE id = %s", (cantidad, producto_id))
-            cursor.execute("""
-                INSERT INTO ventas (producto_id, usuario, cantidad, fecha)
-                VALUES (%s, %s, %s, NOW())
-            """, (producto_id, session['user'], cantidad))
-            conn.commit()
-            venta_id = cursor.lastrowid
-            cursor.execute("""
-                SELECT v.id, p.nombre, v.usuario, v.cantidad, v.fecha, p.precio
-                FROM ventas v
-                JOIN productos p ON v.producto_id = p.id
-                WHERE v.id=%s
-            """, (venta_id,))
-            venta = cursor.fetchone()
-            conn.close()
-            return render_template("recibo.html", venta=venta)
-        else:
-            flash("Stock insuficiente o producto no encontrado", "error")
+
         conn.close()
-        return redirect(url_for('dashboard'))
+        return render_template("recibo_venta.html", ventas=ventas_detalle, total=total)
 
     conn.close()
-    return render_template("nueva_venta.html", productos=productos)
+    return render_template("nueva_venta.html", productos=productos, colegios=colegios)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
