@@ -67,6 +67,7 @@ def editar(id):
     cursor = conn.cursor(dictionary=True)
     if request.method == 'POST':
         data = (
+            request.form['referencia'],
             request.form['nombre'],
             request.form['colegio'],
             request.form['genero'],
@@ -76,7 +77,7 @@ def editar(id):
             id
         )
         cursor.execute(
-            "UPDATE productos SET nombre=%s, colegio=%s, genero=%s, talla=%s, cantidad=%s, precio=%s WHERE id=%s",
+            "UPDATE productos SET referencia=%s, nombre=%s, colegio=%s, genero=%s, talla=%s, cantidad=%s, precio=%s WHERE id=%s",
             data,
         )
         conn.commit()
@@ -126,10 +127,14 @@ def crear_usuario():
         return redirect(url_for('dashboard'))
     username = request.form['username']
     password = request.form['password']
+    email = request.form.get('email')
     role = request.form['role']
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO usuarios(username, password, role) VALUES (%s, %s, %s)", (username, password, role))
+    cursor.execute(
+        "INSERT INTO usuarios(username, password, email, role) VALUES (%s, %s, %s, %s)",
+        (username, password, email, role),
+    )
     conn.commit()
     conn.close()
     flash("Usuario creado")
@@ -212,7 +217,13 @@ def agregar_producto():
     if 'user' not in session:
         return redirect(url_for('login'))
 
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id, nombre FROM colegios")
+    colegios = cursor.fetchall()
+
     if request.method == 'POST':
+        referencia = request.form['referencia']
         nombre = request.form['nombre']
         colegio = request.form['colegio']
         genero = request.form['genero']
@@ -220,18 +231,20 @@ def agregar_producto():
         cantidad = int(request.form['cantidad'])
         precio = float(request.form['precio'])
 
-        conn = get_db()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO productos (nombre, colegio, genero, talla, cantidad, precio)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (nombre, colegio, genero, talla, cantidad, precio))
+        cursor.execute(
+            """
+            INSERT INTO productos (referencia, nombre, colegio, genero, talla, cantidad, precio)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """,
+            (referencia, nombre, colegio, genero, talla, cantidad, precio),
+        )
         conn.commit()
         conn.close()
         flash("Producto agregado correctamente")
         return redirect(url_for('dashboard'))
 
-    return render_template("agregar_producto.html")
+    conn.close()
+    return render_template("agregar_producto.html", colegios=colegios)
 
 @app.route('/entrada', methods=['GET', 'POST'])
 def entrada_producto():

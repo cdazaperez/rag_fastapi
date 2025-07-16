@@ -68,11 +68,9 @@ document.getElementById('colegio').addEventListener('change', (e) => {
   cargarProductos(e.target.value);
 });
 
-window.addEventListener('DOMContentLoaded', () => {
-  if (colegios.length) {
-    cargarProductos(colegios[0]);
-  }
-});
+if (colegios.length) {
+  cargarProductos(colegios[0]);
+}
 
 function actualizarTotal() {
   let total = 0;
