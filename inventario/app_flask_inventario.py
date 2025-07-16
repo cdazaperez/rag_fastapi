@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import mysql.connector
 import os
 from datetime import datetime
+import json
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_segura'
@@ -207,23 +208,38 @@ def nueva_venta():
     productos = cursor.fetchall()
 
     if request.method == 'POST':
-        producto_id = int(request.form['producto_id'])
-        cantidad = int(request.form['cantidad'])
-        cursor.execute("SELECT cantidad, precio FROM productos WHERE id=%s", (producto_id,))
-        resultado = cursor.fetchone()
+        items = json.loads(request.form['items']) if request.form.get('items') else []
+        ventas_detalle = []
+        total = 0
+        for item in items:
+            producto_id = int(item['id'])
+            cantidad = int(item['cantidad'])
+            cursor.execute("SELECT nombre, colegio, cantidad, precio FROM productos WHERE id=%s", (producto_id,))
+            prod = cursor.fetchone()
+            if not prod or prod['cantidad'] < cantidad:
+                flash("Stock insuficiente o producto no encontrado", "error")
+                conn.close()
+                return redirect(url_for('nueva_venta'))
 
-        if resultado and resultado['cantidad'] >= cantidad:
+            subtotal = prod['precio'] * cantidad
+            ventas_detalle.append({
+                'nombre': prod['nombre'],
+                'colegio': prod['colegio'],
+                'cantidad': cantidad,
+                'precio': prod['precio'],
+                'subtotal': subtotal
+            })
+            total += subtotal
+
             cursor.execute("UPDATE productos SET cantidad = cantidad - %s WHERE id = %s", (cantidad, producto_id))
-            cursor.execute("""
-                INSERT INTO ventas (producto_id, usuario, cantidad, fecha)
-                VALUES (%s, %s, %s, NOW())
-            """, (producto_id, session['user'], cantidad))
-            conn.commit()
-            flash("Venta registrada")
-        else:
-            flash("Stock insuficiente o producto no encontrado", "error")
+            cursor.execute(
+                "INSERT INTO ventas (producto_id, usuario, cantidad, fecha) VALUES (%s, %s, %s, NOW())",
+                (producto_id, session['user'], cantidad)
+            )
+
+        conn.commit()
         conn.close()
-        return redirect(url_for('dashboard'))
+        return render_template("recibo_venta.html", ventas=ventas_detalle, total=total)
 
     conn.close()
     return render_template("nueva_venta.html", productos=productos)
