@@ -4,3 +4,6 @@ langchain
 langchain-community
 langchain-openai
 python-multipart
+
+flask
+mysql-connector-python
