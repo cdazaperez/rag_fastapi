@@ -5,11 +5,13 @@ CREATE TABLE IF NOT EXISTS usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    email VARCHAR(100),
     role ENUM('admin','user') NOT NULL DEFAULT 'user'
 );
 
 CREATE TABLE IF NOT EXISTS productos (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    referencia VARCHAR(100) NOT NULL UNIQUE,
     nombre VARCHAR(100) NOT NULL,
     colegio VARCHAR(100) NOT NULL,
     genero VARCHAR(20) NOT NULL,

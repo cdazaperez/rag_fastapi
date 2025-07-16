@@ -4,6 +4,10 @@
 <h2 class="mb-3">Editar Producto</h2>
 <form method="post">
   <div class="mb-3">
+    <label class="form-label">Referencia</label>
+    <input type="text" class="form-control" name="referencia" value="{{ producto.referencia }}" required>
+  </div>
+  <div class="mb-3">
     <label class="form-label">Nombre</label>
     <input type="text" class="form-control" name="nombre" value="{{ producto.nombre }}" required>
   </div>

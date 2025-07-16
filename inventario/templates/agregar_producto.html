@@ -5,12 +5,20 @@
 <form method="post">
   <div class="row">
     <div class="col-md-6 mb-3">
+      <label class="form-label">Referencia</label>
+      <input type="text" class="form-control" name="referencia" required>
+    </div>
+    <div class="col-md-6 mb-3">
       <label class="form-label">Nombre</label>
       <input type="text" class="form-control" name="nombre" required>
     </div>
     <div class="col-md-6 mb-3">
       <label class="form-label">Colegio</label>
-      <input type="text" class="form-control" name="colegio" required>
+      <select name="colegio" class="form-select" required>
+        {% for c in colegios %}
+        <option value="{{ c.nombre }}">{{ c.nombre }}</option>
+        {% endfor %}
+      </select>
     </div>
     <div class="col-md-6 mb-3">
       <label class="form-label">Género</label>
