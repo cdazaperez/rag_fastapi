@@ -13,7 +13,12 @@
   </div>
   <div class="mb-3">
     <label class="form-label">Colegio</label>
-    <input type="text" class="form-control" name="colegio" value="{{ producto.colegio }}" required>
+    <select name="colegio" class="form-select" required>
+      <option value="" disabled>Seleccione un colegio</option>
+      {% for c in colegios %}
+      <option value="{{ c.nombre }}" {{ 'selected' if c.nombre == producto.colegio else '' }}>{{ c.nombre }}</option>
+      {% endfor %}
+    </select>
   </div>
   <div class="mb-3">
     <label class="form-label">Género</label>
