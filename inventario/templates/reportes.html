@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Reportes de Ventas{% endblock %}
+{% block content %}
+<h2 class="mb-3">Reportes de Ventas</h2>
+<h4>Diario</h4>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr><th>Día</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    {% for r in diarios %}
+    <tr><td>{{ r.dia }}</td><td>{{ r.total }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h4>Semanal</h4>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr><th>Año</th><th>Semana</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    {% for r in semanal %}
+    <tr><td>{{ r.year }}</td><td>{{ r.semana }}</td><td>{{ r.total }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h4>Mensual</h4>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr><th>Mes</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    {% for r in mensual %}
+    <tr><td>{{ r.mes }}</td><td>{{ r.total }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
