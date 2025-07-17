@@ -9,7 +9,7 @@
   </thead>
   <tbody>
     {% for r in diarios %}
-    <tr><td>{{ r.dia }}</td><td>{{ r.total }}</td></tr>
+    <tr><td>{{ r.dia }}</td><td>{{ r.total|cop }}</td></tr>
     {% endfor %}
   </tbody>
 </table>
@@ -20,7 +20,7 @@
   </thead>
   <tbody>
     {% for r in semanal %}
-    <tr><td>{{ r.year }}</td><td>{{ r.semana }}</td><td>{{ r.total }}</td></tr>
+    <tr><td>{{ r.year }}</td><td>{{ r.semana }}</td><td>{{ r.total|cop }}</td></tr>
     {% endfor %}
   </tbody>
 </table>
@@ -31,7 +31,7 @@
   </thead>
   <tbody>
     {% for r in mensual %}
-    <tr><td>{{ r.mes }}</td><td>{{ r.total }}</td></tr>
+    <tr><td>{{ r.mes }}</td><td>{{ r.total|cop }}</td></tr>
     {% endfor %}
   </tbody>
 </table>

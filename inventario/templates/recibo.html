@@ -7,8 +7,8 @@
     <p><strong>ID Venta:</strong> {{ venta.id }}</p>
     <p><strong>Producto:</strong> {{ venta.nombre }}</p>
     <p><strong>Cantidad:</strong> {{ venta.cantidad }}</p>
-    <p><strong>Precio Unitario:</strong> {{ venta.precio }}</p>
-    <p><strong>Total:</strong> {{ venta.cantidad * venta.precio }}</p>
+    <p><strong>Precio Unitario:</strong> {{ venta.precio|cop }}</p>
+    <p><strong>Total:</strong> {{ (venta.cantidad * venta.precio)|cop }}</p>
     <p><strong>Fecha:</strong> {{ venta.fecha }}</p>
     <p><strong>Vendido por:</strong> {{ venta.usuario }}</p>
   </div>

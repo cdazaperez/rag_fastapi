@@ -18,18 +18,18 @@
       <td>{{ v.nombre }}</td>
       <td>{{ v.colegio }}</td>
       <td>{{ v.cantidad }}</td>
-      <td>{{ '%.2f'|format(v.precio) }}</td>
-      <td>{{ '%.2f'|format(v.subtotal) }}</td>
+      <td>{{ v.precio|cop }}</td>
+      <td>{{ v.subtotal|cop }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-<h4>Subtotal: ${{ '%.2f'|format(total) }}</h4>
+<h4>Subtotal: {{ total|cop }}</h4>
 {% if aplicar_iva %}
-<h4>IVA (19%): ${{ '%.2f'|format(iva) }}</h4>
-<h4>Total: ${{ '%.2f'|format(total_final) }}</h4>
+<h4>IVA (19%): {{ iva|cop }}</h4>
+<h4>Total: {{ total_final|cop }}</h4>
 {% else %}
-<h4>Total: ${{ '%.2f'|format(total) }}</h4>
+<h4>Total: {{ total|cop }}</h4>
 {% endif %}
 <a href="{{ url_for('recibo_pdf') }}" class="btn btn-secondary mt-3">Descargar PDF</a>
 <a href="{{ url_for('dashboard') }}" class="btn btn-primary mt-3">Aceptar</a>
