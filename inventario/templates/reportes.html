@@ -2,6 +2,7 @@
 {% block title %}Reportes de Ventas{% endblock %}
 {% block content %}
 <h2 class="mb-3">Reportes de Ventas</h2>
+<a href="{{ url_for('exportar_excel_reportes') }}" class="btn btn-primary mb-3">Exportar a Excel</a>
 <h4>Diario</h4>
 <table class="table table-striped mb-4">
   <thead>
@@ -32,6 +33,28 @@
   <tbody>
     {% for r in mensual %}
     <tr><td>{{ r.mes }}</td><td>{{ r.total|cop }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h4>Por Usuario</h4>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr><th>Usuario</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    {% for r in por_usuario %}
+    <tr><td>{{ r.usuario }}</td><td>{{ r.total|cop }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h4>Por Colegio</h4>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr><th>Colegio</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    {% for r in por_colegio %}
+    <tr><td>{{ r.colegio }}</td><td>{{ r.total|cop }}</td></tr>
     {% endfor %}
   </tbody>
 </table>
