@@ -14,9 +14,12 @@ from email.message import EmailMessage
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_segura'
 UPLOAD_FOLDER = 'static/uploads'
+LOGO_FOLDER = 'static/logos'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['LOGO_FOLDER'] = LOGO_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(LOGO_FOLDER, exist_ok=True)
 
 DB_CONFIG = {
     'host': 'localhost',
@@ -41,6 +44,24 @@ def get_db():
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def get_config():
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM configuracion LIMIT 1")
+    config = cursor.fetchone()
+    if not config:
+        cursor.execute(
+            "INSERT INTO configuracion(nombre_empresa) VALUES ('Mi Empresa')")
+        conn.commit()
+        cursor.execute("SELECT * FROM configuracion LIMIT 1")
+        config = cursor.fetchone()
+    conn.close()
+    return config
+
+@app.context_processor
+def inject_config():
+    return {'configuracion': get_config()}
 
 def send_email(to_email, subject, body, pdf_bytes):
     msg = EmailMessage()
@@ -195,6 +216,49 @@ def eliminar_usuario(id):
     conn.close()
     flash("Usuario eliminado")
     return redirect(url_for('gestionar_usuarios'))
+
+
+@app.route('/configuracion', methods=['GET', 'POST'])
+def configuracion():
+    if session.get('role') != 'admin':
+        return redirect(url_for('dashboard'))
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM configuracion LIMIT 1")
+    config = cursor.fetchone()
+
+    if request.method == 'POST':
+        nombre = request.form.get('nombre_empresa')
+        direccion = request.form.get('direccion')
+        telefono = request.form.get('telefono')
+        email = request.form.get('email')
+        color = request.form.get('color_primario')
+        logo_file = request.files.get('logo')
+        logo_path = config.get('logo') if config else None
+        if logo_file and allowed_file(logo_file.filename):
+            filename = secure_filename(logo_file.filename)
+            logo_path = os.path.join(app.config['LOGO_FOLDER'], filename)
+            logo_file.save(logo_path)
+
+        if config:
+            cursor.execute(
+                """UPDATE configuracion SET nombre_empresa=%s, direccion=%s, telefono=%s, email=%s, logo=%s, color_primario=%s WHERE id=%s""",
+                (nombre, direccion, telefono, email, logo_path, color, config['id'])
+            )
+        else:
+            cursor.execute(
+                """INSERT INTO configuracion(nombre_empresa, direccion, telefono, email, logo, color_primario)
+                VALUES (%s, %s, %s, %s, %s, %s)""",
+                (nombre, direccion, telefono, email, logo_path, color)
+            )
+        conn.commit()
+        flash('Configuración actualizada')
+        cursor.execute("SELECT * FROM configuracion LIMIT 1")
+        config = cursor.fetchone()
+
+    conn.close()
+    return render_template('configuracion.html', config=config)
 
 @app.route('/eliminar/<int:id>', methods=['POST'])
 def eliminar_producto(id):

@@ -47,3 +47,14 @@ CREATE TABLE IF NOT EXISTS clientes (
     telefono VARCHAR(20),
     email VARCHAR(100)
 );
+
+CREATE TABLE IF NOT EXISTS configuracion (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_empresa VARCHAR(100),
+    direccion VARCHAR(200),
+    telefono VARCHAR(50),
+    email VARCHAR(100),
+    logo VARCHAR(200),
+    color_primario VARCHAR(20) DEFAULT '#dc3545',
+    color_secundario VARCHAR(20)
+);
