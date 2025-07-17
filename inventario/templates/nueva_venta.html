@@ -102,9 +102,9 @@ function actualizarTotal() {
   const aplicarIVA = document.getElementById('aplicar_iva').checked;
   const iva = aplicarIVA ? total * 0.19 : 0;
   const totalFinal = total + iva;
-  document.getElementById('total').innerText = total.toFixed(2);
-  document.getElementById('iva').innerText = iva.toFixed(2);
-  document.getElementById('total-final').innerText = totalFinal.toFixed(2);
+  document.getElementById('total').innerText = total.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+  document.getElementById('iva').innerText = iva.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
+  document.getElementById('total-final').innerText = totalFinal.toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
   document.getElementById('items').value = JSON.stringify(items);
   console.log("Items actuales:", items);
 }
@@ -133,7 +133,7 @@ document.getElementById('add-btn').addEventListener('click', function(e) {
 
   const tbody = document.getElementById('lista-venta');
   const row = document.createElement('tr');
-  row.innerHTML = `<td>${prod.nombre}</td><td>${prod.colegio}</td><td>${cantidad}</td><td>${precio.toFixed(2)}</td><td>${subtotal.toFixed(2)}</td>`;
+  row.innerHTML = `<td>${prod.nombre}</td><td>${prod.colegio}</td><td>${cantidad}</td><td>${precio.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</td><td>${subtotal.toLocaleString('es-CO', { style: 'currency', currency: 'COP' })}</td>`;
   tbody.appendChild(row);
 
   items.push({id: id, cantidad: cantidad});

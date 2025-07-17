@@ -27,18 +27,18 @@ th { background: #eee; }
       <td>{{ v.nombre }}</td>
       <td>{{ v.colegio }}</td>
       <td>{{ v.cantidad }}</td>
-      <td>{{ '%.2f'|format(v.precio) }}</td>
-      <td>{{ '%.2f'|format(v.subtotal) }}</td>
+      <td>{{ v.precio|cop }}</td>
+      <td>{{ v.subtotal|cop }}</td>
     </tr>
   {% endfor %}
   </tbody>
 </table>
-<p>Subtotal: ${{ '%.2f'|format(total) }}</p>
+<p>Subtotal: {{ total|cop }}</p>
 {% if aplicar_iva %}
-<p>IVA (19%): ${{ '%.2f'|format(iva) }}</p>
-<p><strong>Total: ${{ '%.2f'|format(total_final) }}</strong></p>
+<p>IVA (19%): {{ iva|cop }}</p>
+<p><strong>Total: {{ total_final|cop }}</strong></p>
 {% else %}
-<p><strong>Total: ${{ '%.2f'|format(total) }}</strong></p>
+<p><strong>Total: {{ total|cop }}</strong></p>
 {% endif %}
 </body>
 </html>
