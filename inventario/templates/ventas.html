@@ -2,6 +2,8 @@
 {% block title %}Ventas{% endblock %}
 {% block content %}
 <h2 class="mb-3">Historial de Ventas</h2>
+{% for colegio, items in ventas|groupby('colegio') %}
+<h4 class="mt-4">{{ colegio }}</h4>
 <table class="table table-striped">
   <thead>
     <tr>
@@ -9,19 +11,24 @@
       <th>Producto</th>
       <th>Usuario</th>
       <th>Cantidad</th>
+      <th>Precio</th>
+      <th>Valor</th>
       <th>Fecha</th>
     </tr>
   </thead>
   <tbody>
-    {% for v in ventas %}
+    {% for v in items %}
     <tr>
       <td>{{ v.id }}</td>
       <td>{{ v.nombre }}</td>
       <td>{{ v.usuario }}</td>
       <td>{{ v.cantidad }}</td>
+      <td>{{ v.precio|cop }}</td>
+      <td>{{ v.valor|cop }}</td>
       <td>{{ v.fecha }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+{% endfor %}
 {% endblock %}

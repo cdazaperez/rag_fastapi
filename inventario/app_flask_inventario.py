@@ -23,6 +23,17 @@ DB_CONFIG = {
     'database': 'inventario_uniformes'
 }
 
+# Formateo de moneda en COP para usar en las plantillas
+@app.template_filter('cop')
+def formato_cop(value):
+    try:
+        value = float(value)
+        formatted = f"{value:,.2f}"
+        formatted = formatted.replace(',', 'X').replace('.', ',').replace('X', '.')
+        return f"COP {formatted}"
+    except (TypeError, ValueError):
+        return value
+
 def get_db():
     return mysql.connector.connect(**DB_CONFIG)
 
@@ -188,12 +199,15 @@ def ver_ventas():
         return redirect(url_for('login'))
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT v.id, p.nombre, v.usuario, v.cantidad, v.fecha
+    cursor.execute(
+        """
+        SELECT v.id, p.nombre, p.colegio, v.usuario, v.cantidad, p.precio,
+               (v.cantidad * p.precio) AS valor, v.fecha
         FROM ventas v
         JOIN productos p ON v.producto_id = p.id
-        ORDER BY v.fecha DESC
-    """)
+        ORDER BY p.colegio, v.fecha DESC
+        """
+    )
     ventas = cursor.fetchall()
     conn.close()
     return render_template('ventas.html', ventas=ventas)
