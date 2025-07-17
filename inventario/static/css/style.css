@@ -8,3 +8,16 @@ a.navbar-brand {
 .btn-primary {
     color: #fff;
 }
+
+body.bg-light {
+    background-color: #f0f2f5 !important;
+}
+
+.login-page {
+    min-height: 100vh;
+}
+
+.login-page .card {
+    border: none;
+    border-radius: 1rem;
+}
