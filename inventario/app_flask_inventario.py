@@ -263,27 +263,6 @@ def agregar_producto():
     conn.close()
     return render_template("agregar_producto.html", colegios=colegios)
 
-@app.route('/entrada', methods=['GET', 'POST'])
-def entrada_producto():
-    if 'user' not in session:
-        return redirect(url_for('login'))
-
-    conn = get_db()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM productos")
-    productos = cursor.fetchall()
-
-    if request.method == 'POST':
-        producto_id = int(request.form['producto_id'])
-        cantidad = int(request.form['cantidad'])
-        cursor.execute("UPDATE productos SET cantidad = cantidad + %s WHERE id = %s", (cantidad, producto_id))
-        conn.commit()
-        conn.close()
-        flash("Entrada registrada")
-        return redirect(url_for('dashboard'))
-
-    conn.close()
-    return render_template("entrada_producto.html", productos=productos)
 
 @app.route('/venta', methods=['GET', 'POST'])
 def nueva_venta():
@@ -316,13 +295,13 @@ def nueva_venta():
                 return redirect(url_for('nueva_venta'))
 
             precio = Decimal(str(prod['precio']))
-            subtotal = prod['precio'] * cantidad
+            subtotal = precio * cantidad
             ventas_detalle.append({
                 'nombre': prod['nombre'],
                 'colegio': prod['colegio'],
                 'cantidad': cantidad,
-                'precio': prod['precio'],
-                'subtotal': subtotal
+                'precio': float(precio),
+                'subtotal': float(subtotal)
             })
             total += subtotal
 
@@ -338,10 +317,10 @@ def nueva_venta():
 
         session['last_sale'] = {
             'ventas': ventas_detalle,
-            'total': total,
+            'total': float(total),
             'aplicar_iva': aplicar_iva,
-            'iva': iva,
-            'total_final': total_final
+            'iva': float(iva),
+            'total_final': float(total_final)
         }
 
         conn.commit()
