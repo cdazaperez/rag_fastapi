@@ -8,6 +8,7 @@ from datetime import datetime
 import json
 from io import BytesIO
 from xhtml2pdf import pisa
+from openpyxl import Workbook
 import smtplib
 from email.message import EmailMessage
 
@@ -320,8 +321,114 @@ def reporte_ventas():
         GROUP BY mes ORDER BY mes DESC
     """)
     mensual = cursor.fetchall()
+    cursor.execute("""
+        SELECT usuario, SUM(v.cantidad * p.precio) AS total
+        FROM ventas v
+        JOIN productos p ON v.producto_id = p.id
+        GROUP BY usuario ORDER BY usuario
+    """)
+    por_usuario = cursor.fetchall()
+    cursor.execute("""
+        SELECT p.colegio, SUM(v.cantidad * p.precio) AS total
+        FROM ventas v
+        JOIN productos p ON v.producto_id = p.id
+        GROUP BY p.colegio ORDER BY p.colegio
+    """)
+    por_colegio = cursor.fetchall()
     conn.close()
-    return render_template('reportes.html', diarios=diarios, semanal=semanal, mensual=mensual)
+    return render_template('reportes.html', diarios=diarios, semanal=semanal, mensual=mensual,
+                           por_usuario=por_usuario, por_colegio=por_colegio)
+
+
+@app.route('/reportes/excel')
+def exportar_excel_reportes():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute(
+        """
+        SELECT DATE(fecha) AS dia, SUM(v.cantidad * p.precio) AS total
+        FROM ventas v
+        JOIN productos p ON v.producto_id = p.id
+        GROUP BY dia ORDER BY dia DESC
+        """
+    )
+    diarios = cursor.fetchall()
+    cursor.execute(
+        """
+        SELECT YEAR(fecha) AS year, WEEK(fecha) AS semana, SUM(v.cantidad * p.precio) AS total
+        FROM ventas v
+        JOIN productos p ON v.producto_id = p.id
+        GROUP BY year, semana ORDER BY year DESC, semana DESC
+        """
+    )
+    semanal = cursor.fetchall()
+    cursor.execute(
+        """
+        SELECT DATE_FORMAT(fecha, '%Y-%m') AS mes, SUM(v.cantidad * p.precio) AS total
+        FROM ventas v
+        JOIN productos p ON v.producto_id = p.id
+        GROUP BY mes ORDER BY mes DESC
+        """
+    )
+    mensual = cursor.fetchall()
+    cursor.execute(
+        """
+        SELECT usuario, SUM(v.cantidad * p.precio) AS total
+        FROM ventas v
+        JOIN productos p ON v.producto_id = p.id
+        GROUP BY usuario ORDER BY usuario
+        """
+    )
+    por_usuario = cursor.fetchall()
+    cursor.execute(
+        """
+        SELECT p.colegio, SUM(v.cantidad * p.precio) AS total
+        FROM ventas v
+        JOIN productos p ON v.producto_id = p.id
+        GROUP BY p.colegio ORDER BY p.colegio
+        """
+    )
+    por_colegio = cursor.fetchall()
+    conn.close()
+
+    wb = Workbook()
+
+    ws = wb.active
+    ws.title = 'Diario'
+    ws.append(['Día', 'Total'])
+    for r in diarios:
+        ws.append([r['dia'], float(r['total'])])
+
+    ws = wb.create_sheet('Semanal')
+    ws.append(['Año', 'Semana', 'Total'])
+    for r in semanal:
+        ws.append([r['year'], r['semana'], float(r['total'])])
+
+    ws = wb.create_sheet('Mensual')
+    ws.append(['Mes', 'Total'])
+    for r in mensual:
+        ws.append([r['mes'], float(r['total'])])
+
+    ws = wb.create_sheet('Por Usuario')
+    ws.append(['Usuario', 'Total'])
+    for r in por_usuario:
+        ws.append([r['usuario'], float(r['total'])])
+
+    ws = wb.create_sheet('Por Colegio')
+    ws.append(['Colegio', 'Total'])
+    for r in por_colegio:
+        ws.append([r['colegio'], float(r['total'])])
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+    response = make_response(output.read())
+    response.headers['Content-Type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    response.headers['Content-Disposition'] = 'attachment; filename=reportes.xlsx'
+    return response
 
 @app.route('/agregar', methods=['GET', 'POST'])
 def agregar_producto():
