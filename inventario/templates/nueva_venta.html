@@ -7,6 +7,20 @@
 <form method="post" action="{{ url_for('nueva_venta') }}" id="venta-form">
   <div class="row">
     <div class="col-md-6 mb-3">
+      <label class="form-label">Cliente</label>
+      <select name="cliente_id" id="cliente_id" class="form-select" required>
+        <option value="">Seleccione un cliente</option>
+        {% for c in clientes %}
+        <option value="{{ c.id }}">{{ c.nombre }} {{ c.apellido }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-6 mb-3 d-flex align-items-end">
+      <a href="{{ url_for('listar_clientes') }}" class="btn btn-outline-secondary">Crear cliente</a>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6 mb-3">
       <label class="form-label">Colegio</label>
       <select id="colegio" class="form-select">
         {% for c in colegios %}

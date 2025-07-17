@@ -2,6 +2,7 @@
 {% block title %}Recibo de Venta{% endblock %}
 {% block content %}
 <h2 class="mb-3">Recibo de Venta</h2>
+<p><strong>Cliente:</strong> {{ cliente.nombre }} {{ cliente.apellido }} - {{ cliente.email }}</p>
 <table class="table table-striped">
   <thead>
     <tr>
@@ -32,5 +33,6 @@
 <h4>Total: {{ total|cop }}</h4>
 {% endif %}
 <a href="{{ url_for('recibo_pdf') }}" class="btn btn-secondary mt-3">Descargar PDF</a>
+<a href="{{ url_for('enviar_recibo') }}" class="btn btn-secondary mt-3">Enviar por email</a>
 <a href="{{ url_for('dashboard') }}" class="btn btn-primary mt-3">Aceptar</a>
 {% endblock %}
