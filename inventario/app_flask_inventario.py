@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from werkzeug.utils import secure_filename
 import mysql.connector
 import os
+from decimal import Decimal
 from datetime import datetime
 import json
 from io import BytesIO
@@ -300,7 +301,8 @@ def nueva_venta():
         items = json.loads(request.form['items']) if request.form.get('items') else []
         aplicar_iva = request.form.get('aplicar_iva') == 'on'
         ventas_detalle = []
-        total = 0
+        total = Decimal('0.00')
+
         for item in items:
             producto_id = int(item['id'])
             cantidad = int(item['cantidad'])
@@ -313,6 +315,7 @@ def nueva_venta():
                 conn.close()
                 return redirect(url_for('nueva_venta'))
 
+            precio = Decimal(str(prod['precio']))
             subtotal = prod['precio'] * cantidad
             ventas_detalle.append({
                 'nombre': prod['nombre'],
@@ -330,7 +333,7 @@ def nueva_venta():
                 "INSERT INTO ventas(producto_id, usuario, cantidad, fecha) VALUES (%s, %s, %s, %s)",
                 (producto_id, session['user'], cantidad, datetime.now()))
 
-        iva = total * 0.19 if aplicar_iva else 0
+        iva = total * Decimal('0.19') if aplicar_iva else Decimal('0.00')
         total_final = total + iva
 
         session['last_sale'] = {
