@@ -8,6 +8,8 @@ from datetime import datetime
 import json
 from io import BytesIO
 from xhtml2pdf import pisa
+import smtplib
+from email.message import EmailMessage
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_segura'
@@ -39,6 +41,20 @@ def get_db():
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def send_email(to_email, subject, body, pdf_bytes):
+    msg = EmailMessage()
+    msg['Subject'] = subject
+    msg['From'] = 'noreply@example.com'
+    msg['To'] = to_email
+    msg.set_content(body)
+    if pdf_bytes:
+        msg.add_attachment(pdf_bytes, maintype='application', subtype='pdf', filename='recibo.pdf')
+    try:
+        with smtplib.SMTP('localhost') as smtp:
+            smtp.send_message(msg)
+    except Exception as e:
+        print(f"Error enviando email: {e}")
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -289,10 +305,25 @@ def nueva_venta():
     productos = cursor.fetchall()
     cursor.execute("SELECT DISTINCT colegio FROM productos")
     colegios = [row['colegio'] for row in cursor.fetchall()]
+    cursor.execute("SELECT id, nombre, apellido, email FROM clientes")
+    clientes = cursor.fetchall()
 
     if request.method == 'POST':
         items = json.loads(request.form['items']) if request.form.get('items') else []
         aplicar_iva = request.form.get('aplicar_iva') == 'on'
+        cliente_id = request.form.get('cliente_id')
+        if not cliente_id:
+            flash('Debe seleccionar un cliente', 'error')
+            conn.close()
+            return redirect(url_for('nueva_venta'))
+
+        cursor.execute("SELECT * FROM clientes WHERE id=%s", (cliente_id,))
+        cliente = cursor.fetchone()
+        if not cliente:
+            flash('Cliente no encontrado', 'error')
+            conn.close()
+            return redirect(url_for('nueva_venta'))
+
         ventas_detalle = []
         total = Decimal('0.00')
 
@@ -323,8 +354,8 @@ def nueva_venta():
                 "UPDATE productos SET cantidad = cantidad - %s WHERE id = %s",
                 (cantidad, producto_id))
             cursor.execute(
-                "INSERT INTO ventas(producto_id, usuario, cantidad, fecha) VALUES (%s, %s, %s, %s)",
-                (producto_id, session['user'], cantidad, datetime.now()))
+                "INSERT INTO ventas(producto_id, usuario, cliente_id, cantidad, fecha) VALUES (%s, %s, %s, %s, %s)",
+                (producto_id, session['user'], cliente_id, cantidad, datetime.now()))
 
         iva = total * Decimal('0.19') if aplicar_iva else Decimal('0.00')
         total_final = total + iva
@@ -334,7 +365,8 @@ def nueva_venta():
             'total': float(total),
             'aplicar_iva': aplicar_iva,
             'iva': float(iva),
-            'total_final': float(total_final)
+            'total_final': float(total_final),
+            'cliente': cliente
         }
 
         conn.commit()
@@ -345,11 +377,12 @@ def nueva_venta():
             total=total,
             aplicar_iva=aplicar_iva,
             iva=iva,
-            total_final=total_final
+            total_final=total_final,
+            cliente=cliente
         )
 
     conn.close()
-    return render_template("nueva_venta.html", productos=productos, colegios=colegios)
+    return render_template("nueva_venta.html", productos=productos, colegios=colegios, clientes=clientes)
 
 
 @app.route('/recibo/pdf')
@@ -370,6 +403,33 @@ def recibo_pdf():
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = 'attachment; filename=recibo.pdf'
     return response
+
+@app.route('/recibo/enviar')
+def enviar_recibo():
+    if 'last_sale' not in session:
+        flash('No hay recibo disponible', 'error')
+        return redirect(url_for('dashboard'))
+
+    data = session['last_sale']
+    html = render_template('recibo_venta_pdf.html', **data)
+    pdf_stream = BytesIO()
+    pisa_status = pisa.CreatePDF(html, dest=pdf_stream)
+    if pisa_status.err:
+        flash('Error al generar PDF', 'error')
+        return redirect(url_for('dashboard'))
+    pdf_stream.seek(0)
+    cliente = data.get('cliente')
+    if cliente and cliente.get('email'):
+        send_email(
+            cliente['email'],
+            'Recibo de compra',
+            'Adjuntamos su recibo de compra.',
+            pdf_stream.read()
+        )
+        flash('Recibo enviado al cliente', 'success')
+    else:
+        flash('El cliente no tiene email registrado', 'error')
+    return redirect(url_for('dashboard'))
 
 # --- CRUD Colegios ---
 
