@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Configuración{% endblock %}
+{% block content %}
+<h2>Configuración de la Empresa</h2>
+<form method="post" enctype="multipart/form-data">
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Nombre</label>
+      <input type="text" name="nombre_empresa" value="{{ config.nombre_empresa or '' }}" class="form-control">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Dirección</label>
+      <input type="text" name="direccion" value="{{ config.direccion or '' }}" class="form-control">
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Teléfono</label>
+      <input type="text" name="telefono" value="{{ config.telefono or '' }}" class="form-control">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Email</label>
+      <input type="email" name="email" value="{{ config.email or '' }}" class="form-control">
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="form-label">Color principal</label>
+      <input type="color" name="color_primario" value="{{ config.color_primario or '#dc3545' }}" class="form-control form-control-color">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">Logo</label>
+      <input type="file" name="logo" class="form-control">
+      {% if config.logo %}
+      <img src="/{{ config.logo }}" alt="logo" class="mt-2" height="60">
+      {% endif %}
+    </div>
+  </div>
+  <button class="btn btn-primary" type="submit">Guardar</button>
+</form>
+{% endblock %}
