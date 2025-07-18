@@ -1,36 +1,28 @@
 version: '3.8'
-
 services:
-  db:
-    image: mysql:5.7
+  db_inventario:
+    image: mysql:8.0
+    container_name: db_inventario
     restart: always
     environment:
+      MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: inventario_uniformes
       MYSQL_USER: inventario_user
       MYSQL_PASSWORD: Sk1llN3t.2025
-      MYSQL_ROOT_PASSWORD: rootpass
     volumes:
-      - db_data:/var/lib/mysql
-    networks:
-      - inventario_net
-
-  web:
-    build: .
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
     ports:
-      - "5000:5000"
+      - "3306:3306"
+
+  app_inventario:
+    build: .
+    container_name: app_inventario
+    ports:
+      - "8082:8082"
     depends_on:
-      - db
+      - db_inventario
     environment:
-      DB_HOST: db
+      DB_HOST: db_inventario
       DB_USER: inventario_user
       DB_PASSWORD: Sk1llN3t.2025
       DB_NAME: inventario_uniformes
-    networks:
-      - inventario_net
-
-volumes:
-  db_data:
-
-networks:
-  inventario_net:
-

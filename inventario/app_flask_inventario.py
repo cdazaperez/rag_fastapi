@@ -23,10 +23,10 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(LOGO_FOLDER, exist_ok=True)
 
 DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'inventario_user',
-    'password': 'Sk1llN3t.2025',
-    'database': 'inventario_uniformes'
+    'host': os.getenv('DB_HOST', 'localhost'),
+    'user': os.getenv('DB_USER', 'inventario_user'),
+    'password': os.getenv('DB_PASSWORD', 'Sk1llN3t.2025'),
+    'database': os.getenv('DB_NAME', 'inventario_uniformes')
 }
 
 # Formateo de moneda en COP para usar en las plantillas
