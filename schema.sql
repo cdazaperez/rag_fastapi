@@ -58,3 +58,19 @@ CREATE TABLE IF NOT EXISTS configuracion (
     color_primario VARCHAR(20) DEFAULT '#dc3545',
     color_secundario VARCHAR(20)
 );
+
+-- Datos iniciales
+INSERT INTO usuarios (username, password, email, role) VALUES
+  ('admin', 'admin', 'admin@example.com', 'admin');
+
+INSERT INTO colegios (nombre, direccion, telefono, contacto) VALUES
+  ('Colegio Central', 'Calle 123', '123456789', 'Contacto');
+
+INSERT INTO productos (referencia, nombre, colegio, genero, talla, cantidad, precio) VALUES
+  ('REF001', 'Camiseta', 'Colegio Central', 'Unisex', 'M', 10, 25000.00);
+
+INSERT INTO clientes (nombre, apellido, cedula, telefono, email) VALUES
+  ('Juan', 'Perez', '11111111', '555-1234', 'juan@example.com');
+
+INSERT INTO configuracion (nombre_empresa, direccion, telefono, email) VALUES
+  ('Mi Empresa', 'Direccion 123', '555-1234', 'empresa@example.com');
