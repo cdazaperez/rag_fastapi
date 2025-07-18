@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: inventario_uniformes
+      MYSQL_USER: inventario_user
+      MYSQL_PASSWORD: Sk1llN3t.2025
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - inventario_net
+
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: inventario_user
+      DB_PASSWORD: Sk1llN3t.2025
+      DB_NAME: inventario_uniformes
+    networks:
+      - inventario_net
+
+volumes:
+  db_data:
+
+networks:
+  inventario_net:
+
