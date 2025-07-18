@@ -743,5 +743,44 @@ def eliminar_cliente(id):
     flash('Cliente eliminado')
     return redirect(url_for('listar_clientes'))
 
+
+# --- Gastos ---
+
+@app.route('/gastos')
+def listar_gastos():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT id, item, descripcion, cantidad, valor_unitario, fecha FROM gastos ORDER BY fecha DESC")
+    gastos = cursor.fetchall()
+    cursor.execute("SELECT DATE(fecha) AS dia, SUM(cantidad * valor_unitario) AS total FROM gastos GROUP BY dia ORDER BY dia DESC")
+    diarios = cursor.fetchall()
+    cursor.execute("SELECT YEAR(fecha) AS year, WEEK(fecha) AS semana, SUM(cantidad * valor_unitario) AS total FROM gastos GROUP BY year, semana ORDER BY year DESC, semana DESC")
+    semanal = cursor.fetchall()
+    cursor.execute("SELECT DATE_FORMAT(fecha, '%Y-%m') AS mes, SUM(cantidad * valor_unitario) AS total FROM gastos GROUP BY mes ORDER BY mes DESC")
+    mensual = cursor.fetchall()
+    conn.close()
+    return render_template('gastos.html', gastos=gastos, diarios=diarios, semanal=semanal, mensual=mensual)
+
+
+@app.route('/gastos/crear', methods=['POST'])
+def crear_gasto():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    item = request.form['item']
+    descripcion = request.form.get('descripcion')
+    cantidad = int(request.form['cantidad'])
+    valor_unitario = float(request.form['valor_unitario'])
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute(
+        "INSERT INTO gastos(item, descripcion, cantidad, valor_unitario, fecha) VALUES (%s, %s, %s, %s, %s)",
+        (item, descripcion, cantidad, valor_unitario, datetime.now()))
+    conn.commit()
+    conn.close()
+    flash('Gasto registrado correctamente')
+    return redirect(url_for('listar_gastos'))
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8082, debug=True)
