@@ -59,6 +59,15 @@ CREATE TABLE IF NOT EXISTS configuracion (
     color_secundario VARCHAR(20)
 );
 
+CREATE TABLE IF NOT EXISTS gastos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item VARCHAR(100) NOT NULL,
+    descripcion VARCHAR(200),
+    cantidad INT NOT NULL,
+    valor_unitario DECIMAL(10,2) NOT NULL,
+    fecha DATETIME NOT NULL
+);
+
 -- Datos iniciales
 INSERT INTO usuarios (username, password, email, role) VALUES
   ('admin', 'admin', 'admin@example.com', 'admin');

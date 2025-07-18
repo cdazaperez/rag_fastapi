@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}Gastos{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+  <h2>Gastos</h2>
+</div>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr>
+      <th>Item</th>
+      <th>Descripción</th>
+      <th>Cantidad</th>
+      <th>Valor Unitario</th>
+      <th>Valor Total</th>
+      <th>Fecha</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for g in gastos %}
+    <tr>
+      <td>{{ g.item }}</td>
+      <td>{{ g.descripcion }}</td>
+      <td>{{ g.cantidad }}</td>
+      <td>{{ g.valor_unitario|cop }}</td>
+      <td>{{ (g.cantidad * g.valor_unitario)|cop }}</td>
+      <td>{{ g.fecha.strftime('%Y-%m-%d') if g.fecha else '' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h4>Agregar gasto</h4>
+<form method="post" action="{{ url_for('crear_gasto') }}">
+  <div class="row">
+    <div class="col-md-2 mb-3">
+      <input type="text" name="item" class="form-control" placeholder="Item" required>
+    </div>
+    <div class="col-md-4 mb-3">
+      <input type="text" name="descripcion" class="form-control" placeholder="Descripción">
+    </div>
+    <div class="col-md-2 mb-3">
+      <input type="number" name="cantidad" class="form-control" placeholder="Cantidad" required>
+    </div>
+    <div class="col-md-2 mb-3">
+      <input type="number" step="0.01" name="valor_unitario" class="form-control" placeholder="Valor Unitario" required>
+    </div>
+    <div class="col-md-2 mb-3">
+      <button type="submit" class="btn btn-primary">Agregar</button>
+    </div>
+  </div>
+</form>
+<h4>Totales por día</h4>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr><th>Día</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    {% for r in diarios %}
+    <tr><td>{{ r.dia }}</td><td>{{ r.total|cop }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h4>Totales por semana</h4>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr><th>Año</th><th>Semana</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    {% for r in semanal %}
+    <tr><td>{{ r.year }}</td><td>{{ r.semana }}</td><td>{{ r.total|cop }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<h4>Totales por mes</h4>
+<table class="table table-striped mb-4">
+  <thead>
+    <tr><th>Mes</th><th>Total</th></tr>
+  </thead>
+  <tbody>
+    {% for r in mensual %}
+    <tr><td>{{ r.mes }}</td><td>{{ r.total|cop }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
