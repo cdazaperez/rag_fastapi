@@ -20,17 +20,6 @@ CREATE TABLE IF NOT EXISTS productos (
     precio DECIMAL(10,2) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS ventas (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    producto_id INT NOT NULL,
-    usuario VARCHAR(50) NOT NULL,
-    cliente_id INT NOT NULL,
-    cantidad INT NOT NULL,
-    fecha DATETIME NOT NULL,
-    FOREIGN KEY (producto_id) REFERENCES productos(id),
-    FOREIGN KEY (cliente_id) REFERENCES clientes(id)
-);
-
 CREATE TABLE IF NOT EXISTS colegios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -66,6 +55,17 @@ CREATE TABLE IF NOT EXISTS gastos (
     cantidad INT NOT NULL,
     valor_unitario DECIMAL(10,2) NOT NULL,
     fecha DATETIME NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ventas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    producto_id INT NOT NULL,
+    usuario VARCHAR(50) NOT NULL,
+    cliente_id INT NOT NULL,
+    cantidad INT NOT NULL,
+    fecha DATETIME NOT NULL,
+    FOREIGN KEY (producto_id) REFERENCES productos(id),
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id)
 );
 
 -- Datos iniciales
